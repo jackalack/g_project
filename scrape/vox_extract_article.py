@@ -1,33 +1,20 @@
 from bs4 import BeautifulSoup
-from timeit import Timer
 import threading
 import multiprocessing
 from uuid import uuid4
+import time
+import sys
 import urllib2
 import csv
 import re
 
 
+articles = {}
+
 def in_parallel(fn, l):
        for i in l:
            Thread(target=fn, args=(i,)).start()
  
-# def download_image(i):
-#        print "saving -> "+i
-#        f=open(str(uuid4())+".jpg",'wb')
-#        f.write(from_page(i))
-#        f.close()
- 
-# def all_links(p):
-#        links = re.findall(r'href="([^"]+)"',p)
-#        return [links[i] for i in xrange(0,len(links)) if "http" and "jpg" in links[i]]
- 
-# def from_page(u):
-#        return urllib2.urlopen(u).read()
- 
-# in_parallel(download_image, all_links(from_page("http://www.reddit.com/r/pics")))
-
-
 def import_article_links():
     with open('vox_all_article_links.csv', 'rb') as f:
         reader = csv.reader(f)
@@ -40,6 +27,7 @@ def strip_accents(s):
 
 
 def get_article_text(url):
+    time.sleep(2)
     page = urllib2.urlopen(url)
     soup = BeautifulSoup(page)
     soup =  soup.find("div", "m-entry__body")
@@ -54,16 +42,31 @@ def get_article_text(url):
                     del returned_list[i] 
             article.append(''.join(returned_list))
         article = ''.join([ch for ch in ''.join(article) if ord(ch)<128])
-        f = open(url.split('/')[-1]+".txt", 'w')
-        f.write(article)
+        articles[url] = article
+
+
+def write_articles(url):
+    f = open(url.split('/')[-1]+".txt", 'w')
+    f.write(article)
 
 
 #get_article_text("http://www.vox.com/2015/9/22/9370549/black-on-black-crime")
 #print article_links[23]
 
 
-def concurrent_scrape(minimum,maximum):
+# def worker():
+#     """thread worker function"""
+#     print 'Worker'
+#     return
 
+# threads = []
+# for i in range(5):
+#     t = threading.Thread(target=worker)
+#     threads.append(t)
+#     t.start()
+
+
+def concurrent_scrape(minimum,maximum):
     jobs = []
 
     for i in range(minimum,maximum):
@@ -75,17 +78,15 @@ def concurrent_scrape(minimum,maximum):
         j.join()
 
 
-
-
 if __name__ == '__main__':
     print "begin"
     article_links = import_article_links()
     s = set()
     for item in article_links:
         s.add(item)
-    for x in xrange(0,len(s)+1, 50):
-        if x < len(s)-60:
-            y = x + 50
+    for x in xrange(0,len(s)+1, 20):
+        if x < len(s)-19:
+            y = x + 20
         else:
             y = len(s)+1
         print x,y
