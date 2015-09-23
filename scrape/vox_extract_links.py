@@ -1,34 +1,40 @@
 from bs4 import BeautifulSoup
 from vox_extract_article import get_article_text
 import urllib2
+import csv
 import re
 
-page = urllib2.urlopen("http://www.vox.com/news")
 
-soup = BeautifulSoup(page)
+def extract_article_num():
+    page = urllib2.urlopen("http://www.vox.com/news")
+    soup = BeautifulSoup(page)
+    soup =  soup.find("span", "m-pagination__count")
+    number_of_articles = int(soup.contents[2].split('of ')[-1].replace(',', ''))
+    number_of_pages =  (number_of_articles / 25 ) + 1
+    return number_of_pages
 
-# print soup.find("div", "m-entry__body")
-soup =  soup.find("span", "m-pagination__count")
+def extract_article_links(number_of_pages):
+    links = []
 
-number_of_articles = int(soup.contents[2].split('of ')[-1].replace(',', ''))
-
-print (number_of_articles / 25 ) + 1
-
-#print soup.findAll("p")[0].find('a').contents[0]
-
-# def get_article_text():
-#     article = []
-#     for paragraph in soup.findAll("p"):
-#         returned_list = paragraph.contents 
-#         for i, x in enumerate(returned_list):
-#             if str(type(x)) == "<class 'bs4.element.Tag'>" and paragraph.find('a')!=None:
-#                 returned_list[i] = returned_list[i].contents[0].decode()
-#             elif str(type(x)) == "<class 'bs4.element.Tag'>":
-#                 del returned_list[i] 
-#         article.append(''.join(returned_list))
-#     return ''.join(article)
-
-# print get_article_text()
+    for x in xrange(1, number_of_pages+1):
+        print "http://www.vox.com/news/" + str(x)
+        if x == 1:
+            page = urllib2.urlopen("http://www.vox.com/news")
+        else:
+            page = urllib2.urlopen("http://www.vox.com/news/" + str(x))
+        soup = BeautifulSoup(page.read()).select("div header h3 a")
+        [links.append(element['href']) for element in soup]
+    return links
+        # articles = [td.findAll("div", { "class": "m-block article post"}) for td in soup.findAll("div", { "class": "l-chunk"})]
+        # print articles[0]
 
 
-print get_article_text("http://www.vox.com/2015/9/22/9368591/trump-global-warming")
+print "begin"
+number_of_pages = extract_article_num()
+articles = extract_article_links(number_of_pages)
+
+f = open("vox_all_article_links.csv", 'w')
+writer = csv.writer(f)
+writer.writerow(articles)
+print "end"
+
