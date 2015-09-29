@@ -1,0 +1,37 @@
+import pandas as pd
+import csv
+import os.path
+
+def create_db():
+    with open('../vox_all_article_links.csv', 'rb') as f:
+        reader = csv.reader(f)
+        articles_urls = list(reader)[0]
+
+
+    file_names = [x.split('/')[-1] for x in articles_urls]
+
+    names_text = {}
+
+    for i, article in enumerate(file_names):
+        file_path = '../vox_articles_initial/' + article + '.txt'
+        if os.path.isfile(file_path):
+            with open(file_path) as f:
+                names_text[article] = f.read()
+
+    df = pd.DataFrame(names_text.items())
+
+    return df.iloc[0][1]
+
+
+print create_db()
+
+
+# And now, the mystery of whether Jay Z and Beyonc privately donated funds for Baltimore protesters' bail money.According to Dream Hampton, a social justice writer, filmmaker, and organizer, they absolutely did. On Sunday, Hampton sent out a series of tweets lauding the megacouple for their generosity. She then deleted a bunch of those tweets.Seemingly aware of the likelihood that people would take screenshots of her tweets, which report a story not yet confirmed by the Knowles-Carters, Hampton tweeted this (similarly deleted) tweet, where she notes "errors" in the deleted tweets:
+# Complex Magazine took screenshots of a few tweets just before Hampton deleted them. As for her own personal sense of why Jay Z and Beyonc may have donated bail money, Hampton commented "They gave cuz that's what they do":They gave cuz that's what they do. & should I ever get major bread, I'm gonna be Howard Hughes, wiring out money anonymously too
+
+# Complex Magazine shared screenshots of the deleted tweets. For example, this tweet seems to be in reaction to Complex's coverage: "It's true they gave, which is why I tweeted it."Jay & B for stacks. It's true they gave, which is why I tweeted it. but I erased it within minutes, because ppl believe what they want to.
+
+# But later, Hampton tweeted, "Remind me to never tweet again":remind me to never tweet againWe can't say what prompted Hampton to delete the tweets, which she later defends, but we hope the Knowles-Carters themselves will speak up to confirm or deny the report.
+
+
+# [Finished in 34.5s]
